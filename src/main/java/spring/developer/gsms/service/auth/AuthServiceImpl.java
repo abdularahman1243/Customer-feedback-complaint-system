@@ -7,6 +7,9 @@ import spring.developer.gsms.dto.auth.AuthResponseDTO;
 import spring.developer.gsms.dto.auth.LoginRequestDTO;
 import spring.developer.gsms.dto.auth.RegisterRequestDTO;
 import spring.developer.gsms.entity.UserModel;
+import spring.developer.gsms.exception.ApiErrorCode;
+import spring.developer.gsms.exception.BusinessException;
+import spring.developer.gsms.exception.UnauthorizedException;
 import spring.developer.gsms.mapper.AuthMapper;
 import spring.developer.gsms.repository.UserRepository;
 import spring.developer.gsms.security.JwtService;
@@ -24,11 +27,11 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponseDTO register(RegisterRequestDTO dto) {
 
         if (userRepository.existsByUsername(dto.username())) {
-            throw new RuntimeException("Username already exists");
+            throw new BusinessException("Username already exists", ApiErrorCode.BUSINESS_ERROR);
         }
 
         if (userRepository.existsByEmail(dto.email())) {
-            throw new RuntimeException("Email already exists");
+            throw new BusinessException("Email already exists", ApiErrorCode.BUSINESS_ERROR);
         }
 
         UserModel user = mapper.toEntity(dto);
@@ -49,10 +52,10 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponseDTO login(LoginRequestDTO dto) {
 
         UserModel user = userRepository.findByUsernameAndEnabledTrue(dto.username())
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+                .orElseThrow(() -> new UnauthorizedException("Invalid credentials"));
 
         if (!passwordEncoder.matches(dto.password(), user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new UnauthorizedException("Invalid credentials");
         }
 
         String token = jwtService.generateToken(user);

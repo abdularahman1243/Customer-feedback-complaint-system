@@ -10,6 +10,7 @@ import spring.developer.gsms.document.ServiceRequestDocument;
 import spring.developer.gsms.dto.CreateServiceRequestDTO;
 import spring.developer.gsms.dto.PageResponseDTO;
 import spring.developer.gsms.dto.ServiceRequestResponseDTO;
+import spring.developer.gsms.exception.ResourceNotFoundException;
 import spring.developer.gsms.mapper.ServiceRequestMapper;
 import spring.developer.gsms.repository.ServiceMongoRepository;
 import spring.developer.gsms.repository.ServiceRequestMongoRepository;
@@ -33,8 +34,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
     ) {
 
         serviceRepository.findByCode(dto.serviceCode())
-                .orElseThrow(() ->
-                        new RuntimeException("Service not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Service not found"));
 
         ServiceRequestDocument document =
                 ServiceRequestDocument.builder()
@@ -63,7 +63,8 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
             int size
     ) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, size,
+                Sort.by("createdAt").descending());
 
         Page<ServiceRequestDocument> pageResult =
                 requestRepository.findByCitizenId(citizenId, pageable);
