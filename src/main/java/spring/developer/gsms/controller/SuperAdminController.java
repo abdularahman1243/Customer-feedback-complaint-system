@@ -14,11 +14,4 @@ import spring.developer.gsms.utils.ApiResponse;
 @PreAuthorize("hasRole('SUPER_ADMIN')")
 public class SuperAdminController {
 
-    private final UserManagementService userService;
-
-    @PostMapping("/users/{id}/disable")
-    public ApiResponse<Void> disableUser(@PathVariable Long id) {
-        userService.disableUser(id);
-        return ApiResponse.success("User disabled", null);
-    }
 }
